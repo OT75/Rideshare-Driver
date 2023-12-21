@@ -21,6 +21,7 @@ class _DriverRequestsState extends State<DriverRequests> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -69,6 +70,7 @@ class _DriverRequestsState extends State<DriverRequests> {
   }
 
   Widget buildRequestCard(Map<String, dynamic> request) {
+    print(request);
     return Card(
       color: Color(0xFFbbaeee),
       elevation: 5,
@@ -80,7 +82,7 @@ class _DriverRequestsState extends State<DriverRequests> {
       child: ListTile(
         onTap: () {
           // Handle tap to remove the request from the screen
-          removeRequestFromScreen(request);
+          // removeRequestFromScreen(request);
         },
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,10 +123,7 @@ class _DriverRequestsState extends State<DriverRequests> {
                 ElevatedButton(
                   onPressed: () {
                     // Handle request approval
-                    handleRequestApproval(request);
-                    // Remove the request from the screen
-                    removeRequestFromScreen(request);
-                    _showSuccessDialog(context, "Request Approved");
+                    handleRequestApproval(request, context);
                   },
                   style: ElevatedButton.styleFrom(
                     primary: Colors.black,
@@ -142,10 +141,9 @@ class _DriverRequestsState extends State<DriverRequests> {
                 ElevatedButton(
                   onPressed: () {
                     // Handle request cancellation
-                    handleRequestCancellation(request);
+                    handleRequestCancellation(request, context);
                     // Remove the request from the screen
-                    removeRequestFromScreen(request);
-                    _showErrorDialog(context, "Request Cancelled");
+
 
                   },
                   style: ElevatedButton.styleFrom(
@@ -175,39 +173,243 @@ class _DriverRequestsState extends State<DriverRequests> {
     });
   }
 
-  void handleRequestApproval(Map<String, dynamic> request) async {
-    try {
-      String? requestID = request['document_id'];
+  void handleRequestApproval(Map<String,  dynamic> request, BuildContext context) async {
 
-      if (requestID != null) {
-        // Update the status of the ride request to 'approved'
-        await FirebaseFirestore.instance
-            .collection('ride_requests')
-            .doc(requestID)
-            .update({'status': 'Approved'});
+    bool timeConstraint = ModalRoute.of(context)!.settings.arguments as bool;
 
-        print("Request Approved");
-
-        // Update the corresponding order status
-        // Update the corresponding order status
-        await updateOrderStatus(request, 'Approved');
-        await updateRequestNumberOfSeats(request);
-        await updateRideNumberofSeats(request);
-
-
-        // Delete the request from ride_requests collection
-        await FirebaseFirestore.instance
-            .collection('ride_requests')
-            .doc(requestID)
-            .delete();
-
-      }
-    } catch (e) {
-      print('Error approving ride request: $e');
+    bool isBefore11_30PM() {
+      DateTime now = DateTime.now();
+      DateTime elevenAndHalfPM = DateTime(now.year, now.month, now.day, 23, 30, 0); // 11:00 PM
+      return now.isBefore(elevenAndHalfPM);
     }
-  }
+    bool isBefore4_30PM() {
+      DateTime now = DateTime.now();
+      DateTime elevenAndHalfPM = DateTime(now.year, now.month, now.day, 16, 30, 0); // 11:00 PM
+      return now.isBefore(elevenAndHalfPM);
+    }
 
-  void handleRequestCancellation(Map<String, dynamic> request) async {
+
+    if (timeConstraint)
+    {
+      if ( request['Time'] == "7:30 AM")  // To campus
+        {
+        if (isBefore11_30PM()) {
+          try {
+            String? requestID = request['document_id'];
+
+            if (requestID != null) {
+              // Update the status of the ride request to 'approved'
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .update({'status': 'Approved'});
+
+              print("Request Approved");
+
+              // Update the corresponding order status
+              // Update the corresponding order status
+              await updateOrderStatus(request, 'Approved');
+              await updateRequestNumberOfSeats(request);
+              await updateRideNumberofSeats(request);
+
+
+              // Delete the request from ride_requests collection
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .delete();
+            }
+          } catch (e) {
+            print('Error approving ride request: $e');
+          }
+          // Remove the request from the screen
+          removeRequestFromScreen(request);
+          _showSuccessDialog(context, "Request Approved");
+          print('Before 11:30 PM');
+          // You can add your logic here for the specific time, e.g., request['Time'] == "7:30 AM"
+        }
+
+        else {
+          _showErrorDialog(context, "You can only deal with morning rides before 11:30 PM :(");
+          // Time is after 11:00 PM
+          print('After 11:30 PM');
+        }
+        }
+      if ( request['Time'] == "5:30 PM")
+        {
+          if (isBefore4_30PM()) {
+            try {
+              String? requestID = request['document_id'];
+
+              if (requestID != null) {
+                // Update the status of the ride request to 'approved'
+                await FirebaseFirestore.instance
+                    .collection('ride_requests')
+                    .doc(requestID)
+                    .update({'status': 'Approved'});
+
+                print("Request Approved");
+
+                // Update the corresponding order status
+                // Update the corresponding order status
+                await updateOrderStatus(request, 'Approved');
+                await updateRequestNumberOfSeats(request);
+                await updateRideNumberofSeats(request);
+
+
+                // Delete the request from ride_requests collection
+                await FirebaseFirestore.instance
+                    .collection('ride_requests')
+                    .doc(requestID)
+                    .delete();
+              }
+            } catch (e) {
+              print('Error approving ride request: $e');
+            }
+            print('Before 4:30 PM');
+            // You can add your logic here for the specific time, e.g., request['Time'] == "7:30 AM"
+          }
+          else
+          {
+            _showErrorDialog(context, "You can only deal with afternoon rides before 4:30 PM :(");
+            // Time is after 11:00 PM
+            print('After 4:30 PM');
+          }
+        }
+    }
+    if (!timeConstraint) {
+      try {
+        String? requestID = request['document_id'];
+
+        if (requestID != null) {
+          // Update the status of the ride request to 'approved'
+          await FirebaseFirestore.instance
+              .collection('ride_requests')
+              .doc(requestID)
+              .update({'status': 'Approved'});
+
+          print("Request Approved");
+
+          // Update the corresponding order status
+          // Update the corresponding order status
+          await updateOrderStatus(request, 'Approved');
+          await updateRequestNumberOfSeats(request);
+          await updateRideNumberofSeats(request);
+
+
+          // Delete the request from ride_requests collection
+          await FirebaseFirestore.instance
+              .collection('ride_requests')
+              .doc(requestID)
+              .delete();
+        }
+      } catch (e) {
+        print('Error approving ride request: $e');
+      }
+      // Remove the request from the screen
+      removeRequestFromScreen(request);
+      _showSuccessDialog(context, "Request Approved");
+  }
+}
+
+
+  void handleRequestCancellation(Map<String, dynamic> request, BuildContext context) async {
+    bool timeConstraint = ModalRoute.of(context)!.settings.arguments as bool;
+
+    bool isBefore11_30PM() {
+      DateTime now = DateTime.now();
+      DateTime elevenAndHalfPM = DateTime(now.year, now.month, now.day, 23, 30, 0); // 11:00 PM
+      return now.isBefore(elevenAndHalfPM);
+    }
+    bool isBefore4_30PM() {
+      DateTime now = DateTime.now();
+      DateTime elevenAndHalfPM = DateTime(now.year, now.month, now.day, 16, 30, 0); // 11:00 PM
+      return now.isBefore(elevenAndHalfPM);
+    }
+
+    if(timeConstraint)
+    {
+      if ( request['Time'] == "7:30 AM")  // To campus
+          {
+        if (isBefore11_30PM()) {
+          try {
+            String? requestID = request['document_id'];
+
+            if (requestID != null) {
+              // Update the status of the ride request to 'cancelled'
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .update({'status': 'Cancelled'});
+
+              print("Request Cancelled");
+
+              // Update the corresponding order status
+              await updateOrderStatus(request, 'Cancelled');
+
+              // Delete the request from ride_requests collection
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .delete();
+            }
+          } catch (e) {
+            print('Error cancelling ride request: $e');
+          }
+          print('Before 11:30 PM');
+          // You can add your logic here for the specific time, e.g., request['Time'] == "7:30 AM"
+        }
+
+        else {
+          _showErrorDialog(context, "You can only deal with morning rides before 11:30 PM :(");
+          // Time is after 11:00 PM
+          print('After 11:30 PM');
+        }
+      }
+      if ( request['Time'] == "5:30 PM")
+      {
+        if (isBefore4_30PM()) {
+          try {
+            String? requestID = request['document_id'];
+
+            if (requestID != null) {
+              // Update the status of the ride request to 'cancelled'
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .update({'status': 'Cancelled'});
+
+              print("Request Cancelled");
+
+              // Update the corresponding order status
+              await updateOrderStatus(request, 'Cancelled');
+
+              // Delete the request from ride_requests collection
+              await FirebaseFirestore.instance
+                  .collection('ride_requests')
+                  .doc(requestID)
+                  .delete();
+            }
+          } catch (e) {
+            print('Error cancelling ride request: $e');
+          }
+          removeRequestFromScreen(request);
+          _showErrorDialog(context, "Request Cancelled");
+          print('Before 4:30 PM');
+          // You can add your logic here for the specific time, e.g., request['Time'] == "7:30 AM"
+        }
+        else
+        {
+          _showErrorDialog(context, "You can only deal with afternoon rides before 4:30 PM :(");
+          // Time is after 11:00 PM
+          print('After 4:30 PM');
+        }
+      }
+    }
+
+
+    if(!timeConstraint)
+    {
     try {
       String? requestID = request['document_id'];
 
@@ -232,6 +434,9 @@ class _DriverRequestsState extends State<DriverRequests> {
     } catch (e) {
       print('Error cancelling ride request: $e');
     }
+    removeRequestFromScreen(request);
+    _showErrorDialog(context, "Request Cancelled");
+  }
   }
 
 

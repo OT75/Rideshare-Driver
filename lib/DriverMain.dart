@@ -9,6 +9,7 @@ class DriverMain extends StatefulWidget {
 }
 
 class _DriverMainState extends State<DriverMain> {
+  bool timeConstraint = true;
 
 
   @override
@@ -54,47 +55,70 @@ class _DriverMainState extends State<DriverMain> {
       ),
       backgroundColor: Color(0xFFbbaeee),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/DriverRequests');
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.black,
-                onPrimary: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/DriverRequests', arguments: timeConstraint);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black,
+                  onPrimary: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: Text(
+                  'Requests',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-              child: Text(
-                'Requests',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/Driver'); // Assuming "/rides" is the route for adding a ride
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.black,
-                onPrimary: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/Driver'); // Assuming "/rides" is the route for adding a ride
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black,
+                  onPrimary: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: Text(
+                  'Add Ride',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-              child: Text(
-                'Add Ride',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Time Constraint',
+                    style: TextStyle(fontSize: 30,
+                        fontWeight: FontWeight.bold),
+
+                  ),
+                  Switch(
+                    value: timeConstraint,
+                    onChanged: (value) {
+                      setState(() {
+                        timeConstraint = value;
+                      });
+                    },
+                  ),
+                ],
+              ),],
+
+          ),
         ),
       ),
+
     );
   }
 }
