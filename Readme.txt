@@ -14,3 +14,7 @@ points Gate 3 and 4 and one start ride time at 7:30 am from different locations 
 time at 5:30 pm from faculty of engineering campus. Customers who need a ride at 7:30 must 
 reserve their seat before 10:00 pm previous day. Customers who need a ride from campus at 5:30 
 pm must reserve their seat before 1:00 pm same day.
+
+
+Order must be 
+confirmed before 11:30 pm for morning ride and before 4:30 pm for afternoon ride
